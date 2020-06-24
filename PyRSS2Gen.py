@@ -183,11 +183,7 @@ class Guid:
         self.guid = guid
         self.isPermaLink = isPermaLink
     def publish(self, handler):
-        d = {}
-        if self.isPermaLink:
-            d["isPermaLink"] = "true"
-        else:
-            d["isPermaLink"] = "false"
+        d = {"isPermaLink": "true" if self.isPermaLink else "false"}
         _element(handler, "guid", self.guid, d)
 
 class TextInput:
@@ -333,7 +329,7 @@ class RSS2(WriteXmlMixin):
         _element(handler, "description", self.description)
 
         self.publish_extensions(handler)
-        
+
         _opt_element(handler, "language", self.language)
         _opt_element(handler, "copyright", self.copyright)
         _opt_element(handler, "managingEditor", self.managingEditor)
@@ -361,7 +357,7 @@ class RSS2(WriteXmlMixin):
             self.cloud.publish(handler)
 
         ttl = self.ttl
-        if isinstance(self.ttl, int):
+        if isinstance(ttl, int):
             ttl = IntElement("ttl", ttl)
         _opt_element(handler, "ttl", ttl)
 

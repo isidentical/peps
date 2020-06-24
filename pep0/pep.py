@@ -123,7 +123,7 @@ class Author(object):
         suffix = name_partition[2].strip()
         name_parts = no_suffix.split()
         part_count = len(name_parts)
-        if part_count == 1 or part_count == 2:
+        if part_count in [1, 2]:
             return name_parts[-1], suffix
         else:
             assert part_count > 2
@@ -186,7 +186,7 @@ class PEP(object):
         try:
             for header_name in metadata.keys():
                 current_header, required = next(header_order)
-                while header_name != current_header and not required:
+                while not (header_name == current_header or required):
                     current_header, required = next(header_order)
                 if header_name != current_header:
                     raise PEPError("did not deal with "
@@ -266,10 +266,7 @@ class PEP(object):
                 if not author.partition(' ')[1] and author.endswith('.'):
                     prev_author = author_list.pop()
                     author = ', '.join([prev_author, author])
-                if u'email' not in match_dict:
-                    email = ''
-                else:
-                    email = match_dict['email']
+                email = '' if u'email' not in match_dict else match_dict['email']
                 author_list.append((author, email))
             else:
                 # If authors were found then stop searching as only expect one

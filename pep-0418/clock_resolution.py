@@ -11,20 +11,17 @@ def compute_resolution(func):
     timeout = timeout_time() + 1.0
     previous = func()
     while timeout_time() < timeout or points < 3:
-        for loop in range(10):
+        for _ in range(10):
             t1 = func()
             t2 = func()
             dt = t2 - t1
-            if 0 < dt:
+            if dt > 0:
                 break
         else:
             dt = t2 - previous
             if dt <= 0.0:
                 continue
-        if resolution is not None:
-            resolution = min(resolution, dt)
-        else:
-            resolution = dt
+        resolution = min(resolution, dt) if resolution is not None else dt
         points += 1
         previous = func()
     return resolution

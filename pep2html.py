@@ -92,15 +92,13 @@ SPACE = ' '
 COMMASPACE = ', '
 
 
-
 def usage(code, msg=''):
     """Print usage message and exit.  Uses stderr if code != 0."""
-    if code == 0:
-        out = sys.stdout
-    else:
-        out = sys.stderr
+    out = sys.stdout if code == 0 else sys.stderr
     print(__doc__ % globals(), file=out)
     if msg:
+        print(msg, file=out)
+    sys.exit(code)
         print(msg, file=out)
     sys.exit(code)
 
@@ -514,16 +512,7 @@ def get_input_lines(inpath):
 
 
 def find_pep(pep_str):
-    """Find the .rst or .txt file indicated by a cmd line argument"""
-    if os.path.exists(pep_str):
-        return pep_str
-    num = int(pep_str)
-    rstpath = "pep-%04d.rst" % num
-    if os.path.exists(rstpath):
-        return rstpath
-    return "pep-%04d.txt" % num
-
-def make_html(inpath, verbose=0):
+    def make_html(inpath, verbose=0):
     input_lines = get_input_lines(inpath)
     if input_lines is None:
         return None
@@ -537,9 +526,18 @@ def make_html(inpath, verbose=0):
                               % (inpath, pep_type)), file=sys.stderr)
         sys.stdout.flush()
         return None
-    elif PEP_TYPE_DISPATCH[pep_type] == None:
+    elif PEP_TYPE_DISPATCH[pep_type] is None:
         pep_type_error(inpath, pep_type)
         return None
+    outpath = os.path.splitext(inpath)[0] + ".html"
+    if verbose:
+        print(inpath, "(%s)" % pep_type, "->", outpath)
+        sys.stdout.flush()
+    outfile = open(outpath, "w", encoding='utf-8')
+    PEP_TYPE_DISPATCH[pep_type](inpath, input_lines, outfile)
+    outfile.close()
+    os.chmod(outfile.name, 0o664)
+    return outpath
     outpath = os.path.splitext(inpath)[0] + ".html"
     if verbose:
         print(inpath, "(%s)" % pep_type, "->", outpath)

@@ -81,22 +81,17 @@ class NoneCoalesceIfBlockVisitor(ast.NodeVisitor):
         none_stmt = none_block[0]
 
         # If there is no `a is not None` block, handle gracefully.
-        if len(value_block) == 1:
-            value_stmt = value_block[0]
-        else:
-            value_stmt = None
-
+        value_stmt = value_block[0] if len(value_block) == 1 else None
         # Assigning a value to `a` when it is `None`?
         if isinstance(none_stmt, ast.Assign) and \
            len(none_stmt.targets) == 1:
 
             target = none_stmt.targets[0]
 
-            if isinstance(target, ast.Name):
-                if test_name == target.id:
-                    self.__callback(self.__file, if_.test.lineno,
-                                    target.lineno)
-                    return
+            if isinstance(target, ast.Name) and test_name == target.id:
+                self.__callback(self.__file, if_.test.lineno,
+                                target.lineno)
+                return
 
         # Assigning value of `a` to another identifier when a is not `None`?
         if isinstance(value_stmt, ast.Assign) and \
@@ -125,8 +120,10 @@ class NoneCoalesceOrVisitor(ast.NodeVisitor):
         self.__callback = callback
 
     def visit_BoolOp(self, bool_op):
-        if not isinstance(bool_op.op, ast.Or) or \
-           not isinstance(bool_op.values[0], ast.Name):
+        if not (
+            isinstance(bool_op.op, ast.Or)
+            and isinstance(bool_op.values[0], ast.Name)
+        ):
             return
 
         defaults = ast.Call, ast.Dict, ast.List, ast.Num, ast.Set, ast.Str
@@ -196,8 +193,10 @@ class SafeNavAndVisitor(ast.NodeVisitor):
         self.__callback = callback
 
     def visit_BoolOp(self, bool_op):
-        if not isinstance(bool_op.op, ast.And) or \
-           not isinstance(bool_op.values[0], ast.Name):
+        if not (
+            isinstance(bool_op.op, ast.And)
+            and isinstance(bool_op.values[0], ast.Name)
+        ):
             return
 
         left_name = bool_op.values[0].id
@@ -260,11 +259,7 @@ class SafeNavIfBlockVisitor(ast.NodeVisitor):
             none_block = if_.orelse
             value_block = if_.body
 
-        if len(none_block) > 0:
-            none_lineno = none_block[0].lineno
-        else:
-            none_lineno = 0
-
+        none_lineno = none_block[0].lineno if len(none_block) > 0 else 0
         # If there is no `a is not None` block, then it's definitely not a
         # match.
         if len(value_block) == 1:
@@ -361,11 +356,7 @@ def get_name_from_node(node):
     '''
 
     while isinstance(node, (ast.Attribute, ast.Call, ast.Subscript)):
-        if isinstance(node, ast.Call):
-            node = node.func
-        else:
-            node = node.value
-
+        node = node.func if isinstance(node, ast.Call) else node.value
     if isinstance(node, ast.Name):
         return node.id
     else:

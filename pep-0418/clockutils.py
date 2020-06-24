@@ -72,8 +72,8 @@ def monotonic():
     global _global_monotonic
     if _global_monotonic is None:
         _global_monotonic = monotonic_clock()
-        if _global_monotonic is None:
-            raise RunTimeError("no monotonic clock available")
+    if _global_monotonic is None:
+        raise RunTimeError("no monotonic clock available")
     return _global_monotonic.now()
 
 _global_hires = None
@@ -84,8 +84,8 @@ def highres():
     global _global_hires
     if _global_hires is None:
         _global_hires = highres()
-        if _global_hires is None:
-            raise RunTimeError("no highres clock available")
+    if _global_hires is None:
+        raise RunTimeError("no highres clock available")
     return _global_hires.now()
 
 _global_steady = None
@@ -96,8 +96,8 @@ def steady():
     global _global_steady
     if _global_steady is None:
         _global_steady = steady()
-        if _global_steady is None:
-            raise RunTimeError("no steady clock available")
+    if _global_steady is None:
+        raise RunTimeError("no steady clock available")
     return _global_steady.now()
 
 class _Clock_Flags(int):
@@ -402,7 +402,7 @@ HIGHRES_CLOCKS = ALL_CLOCKS
 STEADY_CLOCKS = ALL_CLOCKS
 
 if __name__ == '__main__':
-    print("ALL_CLOCKS =", repr(ALL_CLOCKS))
+    print("ALL_CLOCKS =", repr(HIGHRES_CLOCKS))
     for clock in get_clocks():
         print("clock = %r" % (clock,))
         print(clock.__class__.__doc__)

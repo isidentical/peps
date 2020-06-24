@@ -109,15 +109,13 @@ class Settings:
 settings = Settings()
 
 
-
 def usage(code, msg=''):
     """Print usage message and exit.  Uses stderr if code != 0."""
-    if code == 0:
-        out = sys.stdout
-    else:
-        out = sys.stderr
+    out = sys.stdout if code == 0 else sys.stderr
     print >> out, __doc__ % globals()
     if msg:
+        print >> out, msg
+    sys.exit(code)
         print >> out, msg
     sys.exit(code)
 
@@ -302,11 +300,6 @@ def fixfile(inpath, input_lines, outfile):
         print >> outfile, '</pre>'
     return title
 
-
-docutils_settings = None
-"""Runtime settings object used by Docutils.  Can be set by the client
-application when this module is imported."""
-
 def fix_rst_pep(inpath, input_lines, outfile):
     from docutils import core
     from docutils.transforms.peps import Headers
@@ -318,6 +311,11 @@ def fix_rst_pep(inpath, input_lines, outfile):
         reader_name='pep',
         parser_name='restructuredtext',
         writer_name='pep_html',
+        settings=docutils_settings,
+        # Allow Docutils traceback if there's an exception:
+        settings_overrides={'traceback': 1})
+    outfile.write(parts['whole'])
+    return 'PEP %s -- %s' % (parts['pepnum'], parts['title'][0])
         settings=docutils_settings,
         # Allow Docutils traceback if there's an exception:
         settings_overrides={'traceback': 1})

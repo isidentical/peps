@@ -258,10 +258,7 @@ def main(pepno = '426'):
     # e.g. "grep unequal pep426sort.log" for the PEP 426 sort differences
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == '386':
-        pepno = '386'
-    else:
-        pepno = '426'
+    pepno = '386' if len(sys.argv) > 1 and sys.argv[1] == '386' else '426'
     logname = 'pep{}sort.log'.format(pepno)
     logging.basicConfig(level=logging.DEBUG, filename=logname,
                         filemode='w', format='%(message)s')

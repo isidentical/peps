@@ -28,11 +28,7 @@ from pep0.pep import PEP, PEPError
 
 
 def main(argv):
-    if not argv[1:]:
-        path = '.'
-    else:
-        path = argv[1]
-
+    path = '.' if not argv[1:] else argv[1]
     peps = []
     if os.path.isdir(path):
         for file_path in os.listdir(path):
